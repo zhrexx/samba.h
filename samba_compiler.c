@@ -1,3 +1,13 @@
+// =======================================================================================================
+// ZHRXXgroup Project 🚀 - samba Build System (samba.h)
+// File: samba_compiler.c
+// Author(s): ZHRXXgroup
+// Version: 1
+// Free to use, modify, and share under our Open Source License (src.zhrxxgroup.com/OPENSOURCE_LICENSE).
+// Want to contribute? Visit: issues.zhrxxgroup.com
+// GitHub: https://github.com/ZHRXXgroup/samba.h
+// ========================================================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +108,8 @@ void parse_build_file(const char* filename) {
         } else if (strcmp(func_name, "compile") == 0 && num_args == 2) {
             compile(args[0], args[1], false);
         } else if (strcmp(func_name, "enable_verbose") == 0 && num_args == 0) {
-            verbose_mode = true;
+            #undef verbose_mode
+            #define verbose_mode true
         }
         else {
             fprintf(stderr, "Unknown function or invalid arguments: %s\n", func_name);
