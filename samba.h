@@ -304,7 +304,7 @@ void reset_settings() {
 }
 
 // INFO Returns 0 if no rebuild needed else 1
-int needs_rebuild(const char *source_file, const char *executable, char **argv) {
+int needs_rebuild(const char *source_file, const char *executable) {
     struct stat source_stat, exe_stat;
 
     if (stat(source_file, &source_stat) != 0) {
@@ -337,10 +337,9 @@ bool file_exists(const char *path) {
 void SAMBA_GO_REBUILD_URSELF() {
     const char *source_file = "samba.c";
     const char *executable = "samba";
-    char *argv[] = {executable, NULL};
 
-    if (needs_rebuild(source_file, executable, argv) == 1) {
-        const char *build_command = "gcc -o samba samba.c";
+    if (needs_rebuild(source_file, executable) == 1) {
+        const char *build_command = "gcc -o samba samba.c -O2 -DNDEBUG -s";
 
         verbose_log("Rebuilding '%s' from source '%s'.\n", executable, source_file);
 
