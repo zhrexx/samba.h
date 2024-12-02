@@ -18,15 +18,15 @@
 #include <stdarg.h>
 
 // INFO | Macros | Each starts with S_
-// | S_AUTO - Automatic Setting of some Modes/Variables
-// | S_COMPILER - Compiler Selection (Default: gcc)
-// | S_CACHE_COMPILATION - Sets S_COMPILER as ccache
-// | S_VERBOSE_MODE - Setting verbose_mode to true
-// | S_OS - Returns Compilation Target OS
-// | S_CMP_CLANG - Used to set S_COMPILER
-// | S_RELEASE_MODE - Setting Release Flags
-// | S_DEBUG_MODE - Setting Debug Flags
-// | S_SUDO - Running as sudo
+// | S_AUTO | Automatic Setting of some Modes/Variables | Disabled
+// | S_COMPILER | Compiler Selection                    | GCC
+// | S_CACHE_COMPILATION | Sets S_COMPILER as ccache    | Disabled
+// | S_VERBOSE_MODE | Setting verbose_mode to true      | Disabled
+// | S_OS | Returns Compilation Target OS               | Disabled
+// | S_CMP_CLANG | Used to set S_COMPILER               | Disabled
+// | S_RELEASE_MODE | Setting Release Flags             | Disabled
+// | S_DEBUG_MODE | Setting Debug Flags                 | Disabled
+// | S_SUDO | Running as sudo?                          | NULL
 
 #define S_SUDO (geteuid() == 0)
 
