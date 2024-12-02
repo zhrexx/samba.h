@@ -333,7 +333,7 @@ bool file_exists(const char *path) {
     return (stat(path, &buffer) == 0);
 }
 
-// INFO | Idea stolen from tsoding | IMPLEMENTATION SELF MADE | https://github.com/tsoding/nob.h (NOB_GO_REBUILD_URSELF)
+// INFO | Idea taken from tsoding | IMPLEMENTATION SELF MADE | https://github.com/tsoding/nob.h (NOB_GO_REBUILD_URSELF)
 void SAMBA_GO_REBUILD_URSELF() {
     const char *source_file = "samba.c";
     const char *executable = "samba";
