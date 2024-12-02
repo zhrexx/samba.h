@@ -94,6 +94,16 @@ void verbose_log(const char *fmt, ...) {
     }
 }
 
+void exit_error(const char *func, const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    fprintf(stderr, "Error at function %s: ", func);
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, "\n");
+    va_end(args);
+    exit(EXIT_FAILURE);
+}
+
 char *check_cores() {
     FILE *fp;
     char buffer[128];
@@ -267,8 +277,7 @@ void compile(const char *script_file, const char *output_file, bool create_share
             printf("Build directory '%s' does not exist. Creating it...\n", build_directory);
             }
             if (mkdir(build_directory, 0755) != 0) {
-                perror("Failed to create build directory");
-                exit(EXIT_FAILURE);
+                exit_error(__func__, "Failed to create build directory");
             }
             verbose_log("Build directory created successfully.\n");
         }
@@ -344,8 +353,7 @@ void SAMBA_GO_REBUILD_URSELF() {
         verbose_log("Rebuilding '%s' from source '%s'.\n", executable, source_file);
 
         if (system(build_command) != 0) {
-            fprintf(stderr, "Build failed\n");
-            exit(EXIT_FAILURE);
+            exit_error(__func__, "Build failed\n");
         }
 
         verbose_log("Build completed successfully.\n");
@@ -355,8 +363,7 @@ void SAMBA_GO_REBUILD_URSELF() {
         const char *run_command = "./samba";
         verbose_log("Executing '%s'...\n", executable);
         if (system(run_command) != 0) {
-            fprintf(stderr, "Execution failed\n");
-            exit(EXIT_FAILURE);
+            exit_error(__func__, "Execution failed\n");
         }
     }
 }
