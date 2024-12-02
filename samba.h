@@ -104,24 +104,6 @@ void exit_error(const char *func, const char *fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
-char *check_cores() {
-    FILE *fp;
-    char buffer[128];
-
-    fp = popen("nproc", "r");
-    if (fp == NULL) {
-        perror("popen");
-        return NULL;
-    }
-
-    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        return strdup(buffer);
-    }
-
-    fclose(fp);
-    return NULL;
-}
-
 char *escape_argument(const char *arg) {
     size_t len = strlen(arg);
     char *escaped = malloc(len * 2 + 3);

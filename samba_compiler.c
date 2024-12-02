@@ -1,8 +1,11 @@
+// ! CODE IS NOT LONGER SUPPORTED PREVENT USING IT
+// ! BUT IF YOUR DONT NEED FULL CAPABILITIES OF SAMBA.H LIKE FOR SMALL PROJECTS THEN YOU CAN STILL USE IT
+
 // =======================================================================================================
 // ZHRXXgroup Project 🚀 - samba Build System (samba.h)
 // File: samba_compiler.c
 // Author(s): ZHRXXgroup
-// Version: 1
+// Version: 1 !LATEST
 // Free to use, modify, and share under our Open Source License (src.zhrxxgroup.com/OPENSOURCE_LICENSE).
 // Want to contribute? Visit: issues.zhrxxgroup.com
 // GitHub: https://github.com/ZHRXXgroup/samba.h
