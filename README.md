@@ -9,6 +9,12 @@
 The `samba.h` library is a lightweight and dynamic build system designed to streamline the compilation process for C projects. Inspired by simplicity and efficiency, it includes features for setting compiler options, managing dependencies, and configuring build environments through a set of intuitive macros and functions.
 
 ---
+## Documentation
+Currently there is no Documentation, i think i will make in the next big update (1.1)
+
+When one will be released the under this [URL](https://zhrxxgroup.com/samba.h/docs)
+
+---
 
 ## Features
 - Dynamic Compiler Selection: Choose between GCC and Clang with optional `ccache` acceleration.

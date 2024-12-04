@@ -16,6 +16,8 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdarg.h>
+// V1.1
+#include <time.h>
 
 // INFO | Macros | Each starts with S_
 // | S_AUTO | Automatic Setting of some Modes/Variables | Disabled
@@ -28,9 +30,13 @@
 // | S_DEBUG_MODE | Setting Debug Flags                 | Disabled
 // | S_SUDO | Running as sudo?                          | NULL
 
-#define S_SUDO (geteuid() == 0)
+// INFO | Binary Macros | Each starts with SAMBA_ and can be used inside of the compiled file
+// ...
+
 
 // -- Macros --
+#define S_SUDO (geteuid() == 0)
+
 #ifdef __linux__
     #define S_OS "linux"
 #elif defined(__APPLE__)
@@ -397,6 +403,91 @@ int s_system(char *command) {
     verbose_log("Executing command: %s\n", command);
 }
 
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+               // V 1.1
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+
+void set_build_directory(const char *path) {
+    free(build_directory);
+    build_directory = strdup(path);
+    if (!build_directory) {
+        exit_error(__func__, "Failed to set build directory");
+    }
+}
+
+void print_libraries() {
+    printf("Libraries:\n");
+    for (size_t i = 0; i < num_libraries; i++) {
+        printf(" - %s\n", libraries[i].key);
+    }
+}
+
+void clear_build_directory() {
+    char command[256];
+
+    snprintf(command, sizeof(command), "rm -rf %s", build_directory);
+
+    verbose_log("Clearing build directory: %s\n", command);
+
+    int result = system(command);
+    if (result != 0) {
+        fprintf(stderr, "Error: Failed to clear build directory.\n");
+    }
+
+}
+
+void generate_build_report_to_file(const char *filename) {
+    verbose_log("Generating build report to file: %s\n", filename);
+    FILE *file = fopen(filename, "w");
+
+    if (file == NULL) {
+        fprintf(stderr, "Error: Unable to open file %s for writing.\n", filename);
+        return;
+    }
+
+    fprintf(file, "Build Configuration Report:\n");
+    fprintf(file, "- Compiler: %s\n", S_COMPILER);
+    fprintf(file, "- Flags: ");
+    if (num_flags == 0) {
+        fprintf(file, "\n  - None\n");
+    } else {
+        for (size_t i = 0; i < num_flags; i++) {
+            fprintf(file, "\n  - %s", flags[i]);
+        }
+    }
+
+    fprintf(file, "\n- Libraries: ");
+    if (num_libraries == 0) {
+        fprintf(file, "\n  - None\n");
+    } else {
+        for (size_t i = 0; i < num_libraries; i++) {
+            fprintf(file, "\n  - %s", libraries[i].key);
+        }
+    }
+    fprintf(file, "\n- Includes: ");
+    if (num_includes == 0) {
+        fprintf(file, "\n  - None\n");
+    } else {
+        for (size_t i = 0; i < num_includes; i++) {
+            fprintf(file, "\n  - %s", includes[i].key);
+        }
+    }
+
+    fprintf(file, "\n");
+
+    if (fclose(file) != 0) {
+        fprintf(stderr, "Error: Failed to close file %s.\n", filename);
+    } else {
+        printf("Build report successfully written to %s.\n", filename);
+    }
+
+    char command[256];
+    snprintf(command, sizeof(command), "chmod 755 %s", filename);
+    verbose_log("Executing command: %s\n", command);
+    system(command);
+}
 
 
 #endif
