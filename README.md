@@ -14,6 +14,8 @@ Currently there is no Documentation, i think i will make in the next big update 
 
 When one will be released the under this [URL](https://zhrxxgroup.com/samba.h/docs)
 
+NOTE: to install samba.h to /usr/include run samba as admin with flag --install
+
 ---
 
 ## Features
