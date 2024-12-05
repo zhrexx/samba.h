@@ -47,6 +47,18 @@
     #define S_OS "unknown"
 #endif
 
+#define CONTAINS_STRING(array, size, target) ({         \
+    int found = 0;                                      \
+    for (int i = 0; i < (size); i++) {                  \
+        if (strcmp((array)[i], (target)) == 0) {        \
+            found = 1;                                  \
+            break;                                      \
+        }                                               \
+    }                                                   \
+    found;                                              \
+})
+
+
 // -- Compiler --
 #ifdef S_CMP_CLANG
     #ifndef S_CACHE_COMPILATION
@@ -489,5 +501,23 @@ void generate_build_report_to_file(const char *filename) {
     system(command);
 }
 
+void generate_timestamp_file() {
+    FILE *file = fopen("build.timestamp", "w");
+    if (file) {
+        time_t now = time(NULL);
+        fprintf(file, "Last build: %s", ctime(&now));
+        fclose(file);
+        printf("Build timestamp generated.\n");
+    } else {
+        fprintf(stderr, "Error generating timestamp file.\n");
+    }
+}
+
+void backup_build_directory(const char *backup_dir) {
+    char command[256];
+    snprintf(command, sizeof(command), "cp -r %s %s", build_directory, backup_dir);
+    verbose_log("Executing command: %s\n", command);
+    system(command);
+}
 
 #endif

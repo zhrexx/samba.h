@@ -1,6 +1,5 @@
 build
 .idea
-samba
 SP
 samba_compiler
 samba.c
