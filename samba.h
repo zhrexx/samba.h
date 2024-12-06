@@ -33,7 +33,6 @@
 // INFO | Binary Macros | Each starts with SAMBA_ and can be used inside of the compiled file
 // ...
 
-
 // -- Macros --
 #define S_SUDO (geteuid() == 0)
 
@@ -519,5 +518,21 @@ void backup_build_directory(const char *backup_dir) {
     verbose_log("Executing command: %s\n", command);
     system(command);
 }
+
+// -- Strip Prefix --
+#ifdef S_STRIP_Prefix
+    #define AUTO S_AUTO
+    #define CACHE_COMPILATION S_CACHE_COMPILATION
+    #define VERBOSE_MODE S_VERBOSE_MODE
+    #define OS S_OS
+    #define CMP_CLANG S_CMP_CLANG
+    #define RELEASE_MODE S_RELEASE_MODE
+    #define DEBUG_MODE S_DEBUG_MODE
+    #define SUDO S_SUDO
+    #define GO_REBUILD_URSELF SAMBA_GO_REBUILD_URSELF
+#endif
+
+
+
 
 #endif

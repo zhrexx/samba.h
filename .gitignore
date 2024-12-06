@@ -3,4 +3,5 @@ build
 SP
 samba_compiler
 samba.c
+samba
 sss.txt
