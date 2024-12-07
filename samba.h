@@ -520,7 +520,7 @@ void backup_build_directory(const char *backup_dir) {
 }
 
 // -- Strip Prefix --
-#ifdef S_STRIP_Prefix
+#ifdef S_STRIP_PREFIX
     #define AUTO S_AUTO
     #define CACHE_COMPILATION S_CACHE_COMPILATION
     #define VERBOSE_MODE S_VERBOSE_MODE
