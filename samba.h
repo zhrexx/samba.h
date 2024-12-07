@@ -20,6 +20,7 @@
 #include <time.h>
 
 // INFO | Macros | Each starts with S_
+// | S_VERSION | Version of Samba                       | Samba Version
 // | S_AUTO | Automatic Setting of some Modes/Variables | Disabled
 // | S_COMPILER | Compiler Selection                    | GCC
 // | S_CACHE_COMPILATION | Sets S_COMPILER as ccache    | Disabled
@@ -34,6 +35,7 @@
 // ...
 
 // -- Macros --
+#define S_VERSION = 1.1
 #define S_SUDO (geteuid() == 0)
 
 #ifdef __linux__
@@ -532,6 +534,103 @@ void backup_build_directory(const char *backup_dir) {
     #define GO_REBUILD_URSELF SAMBA_GO_REBUILD_URSELF
 #endif
 
+// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+// ! WORKS ONLY ON Red Hat based distros and on Debian based distros
+void check_and_install_dependency(const char *tool) {
+    if (!check_tool(tool)) {
+        printf("Dependency '%s' not found. Attempting to install...\n", tool);
+        if (check_tool("dnf")) {
+            char command[256];
+            snprintf(command, sizeof(command), "sudo dnf install -y %s", tool);
+            system(command);
+        } else if (check_tool("apt-get")) {
+            char command[256];
+            snprintf(command, sizeof(command), "sudo apt-get install -y %s", tool);
+            system(command);
+        } else {
+            fprintf(stderr, "Error: Package manager not found. Please install '%s' manually.\n", tool);
+        }
+    } else {
+        printf("Dependency '%s' is already installed.\n", tool);
+    }
+}
+
+// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+void interactive_menu() {
+    int choice;
+    do {
+        printf("\n--- Build System Menu ---\n");
+        printf("1. Add Library\n");
+        printf("2. Add Include Path\n");
+        printf("3. Set Build Directory\n");
+        printf("4. Compile\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                {
+                    char lib[256];
+                    printf("Enter library name: ");
+                    scanf("%s", lib);
+                    define_library(lib);
+                }
+                break;
+            case 2:
+                {
+                    char path[256];
+                    printf("Enter include path: ");
+                    scanf("%s", path);
+                    define_include(path);
+                }
+                break;
+            case 3:
+                {
+                    char dir[256];
+                    printf("Enter build directory: ");
+                    scanf("%s", dir);
+                    set_build_directory(dir);
+                }
+                break;
+            case 4:
+                {
+                    char src[256], out[256];
+                    printf("Enter source file: ");
+                    scanf("%s", src);
+                    printf("Enter output file: ");
+                    scanf("%s", out);
+                    compile(src, out, false);
+                }
+                break;
+            case 5:
+                printf("Exiting menu.\n");
+                break;
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    } while (choice != 5);
+}
+
+// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+void add_memory_sanitizer() {
+    add_flag("-fsanitize=address");
+    add_flag("-fsanitize=undefined");
+}
+
+// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+void add_compiler_warnings() {
+    add_flag("-Wall");
+    add_flag("-Wextra");
+    add_flag("-pedantic");
+}
+
+// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+void send_notification(const char *message, const char *title) {
+    char command[512];
+    snprintf(command, sizeof(command), "notify-send '%s' '%s'", title, message);
+    system(command);
+}
 
 
 

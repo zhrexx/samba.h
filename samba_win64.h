@@ -1,5 +1,7 @@
-// !!USE ONLY AT WINDOWS!!
+// !! USE ONLY AT WINDOWS !!
 // !! ONLY UP TO 1.1 !!
+// !! EXPERIMENTAL ONLY !!
+
 
 #include <stdio.h>
 #include <stdlib.h>
