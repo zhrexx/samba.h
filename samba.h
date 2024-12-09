@@ -18,7 +18,6 @@
 #include <stdarg.h>
 // V1.1
 #include <time.h>
-#include <uuid/uuid.h>
 
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
@@ -850,18 +849,6 @@ void get_current_datetime(char *buffer, size_t buffer_size) {
     time_t now = time(NULL);
     struct tm *tm_info = localtime(&now);
     strftime(buffer, buffer_size, "%Y-%m-%d %H:%M:%S", tm_info);
-}
-
-/*
-  @name generate_uuid
-  @parameters char *buffer
-  @description Generate a UUID string to the buffer
-  @returns void
-*/
-void generate_uuid(char *buffer) {
-    uuid_t uuid;
-    uuid_generate(uuid);
-    uuid_unparse(uuid, buffer);
 }
 
 /*
