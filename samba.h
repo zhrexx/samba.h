@@ -2,7 +2,7 @@
 // ZHRXXgroup Project 🚀 - samba Build System (samba.h)
 // File: samba.h
 // Author(s): ZHRXXgroup
-// Version: 1
+// Version: 1.1
 // Free to use, modify, and share under our Open Source License (src.zhrxxgroup.com/OPENSOURCE_LICENSE).
 // Want to contribute? Visit: issues.zhrxxgroup.com
 // GitHub: https://github.com/ZHRXXgroup/samba.h

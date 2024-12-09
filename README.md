@@ -1,5 +1,5 @@
 ## Samba Build System 🚀  
-- Version: 1.0  
+- Version: 1.1  
 - Author(s): ZHRXXgroup  
 - License: [Our Open Source License](http://src.zhrxxgroup.com/OPENSOURCE_LICENSE)
 
