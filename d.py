@@ -7,14 +7,14 @@ def parse_comments_to_html(comments: str) -> str:
     :param comments: The string containing all block comments.
     :return: HTML documentation as a string.
     """
-    # Regex to extract individual comment blocks
+    
     block_pattern = r"/\*([\s\S]*?)\*/"
     blocks = re.findall(block_pattern, comments)
 
-    # Regex to extract tag-content pairs within a block
+    
     tag_pattern = r"@(\w+)\s+(.*)"
 
-    # Start building the HTML
+    
     html = "<!DOCTYPE html>\n<html>\n<head>\n<title>Documentation</title>\n</head>\n<body>\n"
     html += "<h1>Documentation</h1>\n"
 
@@ -30,16 +30,16 @@ def parse_comments_to_html(comments: str) -> str:
     return html
 
 
-# Read from file
+
 file_name = "samba.h"
 try:
     with open(file_name, "r") as file:
         source_code = file.read()
 
-    # Generate HTML from comments in the file
+    
     html_output = parse_comments_to_html(source_code)
 
-    # Save the HTML output to a file
+    
     output_file = "docs/documentation.html"
     with open(output_file, "w") as file:
         file.write(html_output)
