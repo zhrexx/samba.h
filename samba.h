@@ -18,6 +18,7 @@
 #include <stdarg.h>
 // V1.1
 #include <time.h>
+#include <uuid/uuid.h>
 
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
@@ -104,6 +105,12 @@ size_t num_flags = 0;
     #define verbose_mode false
 #endif
 
+/*
+  @name verbose_log
+  @parameters char *fmt, ...
+  @description Prints an Message if verbose_mode is true
+  @returns void
+*/
 void verbose_log(const char *fmt, ...) {
     if (verbose_mode) {
         va_list args;
@@ -113,6 +120,12 @@ void verbose_log(const char *fmt, ...) {
     }
 }
 
+/*
+  @name exit_error
+  @parameters char *func, char *fmt, ...
+  @description Prints an Error Message to stderr and Exits
+  @returns void
+*/
 void exit_error(const char *func, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -123,6 +136,12 @@ void exit_error(const char *func, const char *fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
+/*
+  @name escape_argument
+  @parameters char *arg
+  @description Escapes an Argument for use in a shell command
+  @returns char *
+*/
 char *escape_argument(const char *arg) {
     size_t len = strlen(arg);
     char *escaped = malloc(len * 2 + 3);
@@ -138,6 +157,12 @@ char *escape_argument(const char *arg) {
     return escaped;
 }
 
+/*
+  @name define_variable
+  @parameters char *var_name, char *var_value
+  @description Adds an Variable to Built Binary
+  @returns int
+*/
 int define_variable(const char *var_name, const char *var_value) {
     variables = realloc(variables, sizeof(Entry) * (num_variables + 1));
     if (!variables) return -1;
@@ -149,6 +174,12 @@ int define_variable(const char *var_name, const char *var_value) {
     return 0;
 }
 
+/*
+  @name define_library
+  @parameters char *library
+  @description Adds an Library to the build configuration
+  @returns int
+*/
 int define_library(const char *library) {
     libraries = realloc(libraries, sizeof(Entry) * (num_libraries + 1));
     if (!libraries) return -1;
@@ -159,6 +190,12 @@ int define_library(const char *library) {
     return 0;
 }
 
+/*
+  @name define_include
+  @parameters char *include_path
+  @description Adds an Include to the build configuration
+  @returns int
+*/
 int define_include(const char *include_path) {
     includes = realloc(includes, sizeof(Entry) * (num_includes + 1));
     if (!includes) return -1;
@@ -169,6 +206,12 @@ int define_include(const char *include_path) {
     return 0;
 }
 
+/*
+  @name define_library_path
+  @parameters char *path
+  @description Adds an library path to the build configuration
+  @returns int
+*/
 int define_library_path(const char *path) {
     library_paths = realloc(library_paths, sizeof(Entry) * (num_library_paths + 1));
     if (!library_paths) return -1;
@@ -179,6 +222,12 @@ int define_library_path(const char *path) {
     return 0;
 }
 
+/*
+  @name add_flag
+  @parameters char *flag
+  @description Adds an flag to the build configuration
+  @returns int
+*/
 int add_flag(const char *flag) {
     char **temp = realloc(flags, sizeof(char *) * (num_flags + 1));
     if (!temp) return -1;
@@ -189,6 +238,12 @@ int add_flag(const char *flag) {
     return 0;
 }
 
+/*
+  @name remove_library
+  @parameters char *library
+  @description Removes a library from the list of libraries.
+  @returns void
+*/
 void remove_library(const char *library) {
     for (size_t i = 0; i < num_libraries; i++) {
         if (strcmp(libraries[i].key, library) == 0) {
@@ -199,6 +254,12 @@ void remove_library(const char *library) {
     }
 }
 
+/*
+  @name remove_include
+  @parameters char *include_path
+  @description Removes an include path from the list of include paths.
+  @returns void
+*/
 void remove_include(const char *include_path) {
     for (size_t i = 0; i < num_includes; i++) {
         if (strcmp(includes[i].key, include_path) == 0) {
@@ -209,6 +270,12 @@ void remove_include(const char *include_path) {
     }
 }
 
+/*
+  @name remove_library_path
+  @parameters char *tool
+  @description Removes a library path from the list of library paths.
+  @returns void
+*/
 void remove_library_path(const char *path) {
     for (size_t i = 0; i < num_library_paths; i++) {
         if (strcmp(library_paths[i].key, path) == 0) {
@@ -219,17 +286,35 @@ void remove_library_path(const char *path) {
     }
 }
 
+/*
+  @name build_directory_exists
+  @parameters char *path
+  @description PRIVATE FUNCTION
+  @returns bool
+*/
 static bool build_directory_exists(const char *path) {
      struct stat info;
      return (stat(path, &info) == 0 && (info.st_mode & S_IFDIR));
 }
 
+/*
+  @name check_tool
+  @parameters char *tool
+  @description Checks if a tool is installed on the system.
+  @returns bool
+*/
 bool check_tool(const char *tool) {
     char command[256];
     snprintf(command, sizeof(command), "which %s > /dev/null 2>&1", tool);
     return (system(command) == 0);
 }
 
+/*
+  @name compile
+  @parameters char *script_file, char *output_file, bool create_shared
+  @description Compiles a script file into an executable file with all given configuration.
+  @returns void
+*/
 void compile(const char *script_file, const char *output_file, bool create_shared) {
     #ifdef S_CACHE_COMPILATION
         if (!check_tool("ccache")) {
@@ -293,6 +378,12 @@ void compile(const char *script_file, const char *output_file, bool create_share
     }
 }
 
+/*
+  @name free_all
+  @parameters void
+  @description Frees All
+  @returns void
+*/
 void free_all() {
     for (size_t i = 0; i < num_libraries; i++) free(libraries[i].key);
     free(libraries);
@@ -307,13 +398,24 @@ void free_all() {
     num_libraries = num_includes = num_library_paths = num_flags = 0;
 }
 
+/*
+  @name reset_settings
+  @parameters void
+  @description Frees All | Is made if your wanna make 2 targets or more with different flags
+  @returns void
+*/
 void reset_settings() {
     free_all();
     #undef verbose_mode
     #define verbose_mode false
 }
 
-// INFO Returns 0 if no rebuild needed else 1
+/*
+  @name needs_rebuild
+  @parameters char *source_file, char *executable
+  @description Used in SAMBA_GO_REBUILD_URSELF | you can also use it
+  @returns int
+*/
 int needs_rebuild(const char *source_file, const char *executable) {
     struct stat source_stat, exe_stat;
 
@@ -338,12 +440,23 @@ int needs_rebuild(const char *source_file, const char *executable) {
     return 0;
 }
 
+/*
+  @name file_exists
+  @parameters char *path
+  @description Checks if the given file exists
+  @returns bool
+*/
 bool file_exists(const char *path) {
     struct stat buffer;
     return (stat(path, &buffer) == 0);
 }
 
-// INFO | Idea taken from tsoding | IMPLEMENTATION SELF MADE | https://github.com/tsoding/nob.h (NOB_GO_REBUILD_URSELF)
+/*
+  @name SAMBA_GO_REBUILD_URSELF
+  @parameters void
+  @description Checks if the samba.c binary is uptodate | Idea taken from tsoding | Implementation self made
+  @returns void
+*/
 void SAMBA_GO_REBUILD_URSELF() {
     const char *source_file = "samba.c";
     const char *executable = "samba";
@@ -369,7 +482,12 @@ void SAMBA_GO_REBUILD_URSELF() {
     }
 }
 
-// INFO | Init for Build Modes
+/*
+  @name initialize_build_flags
+  @parameters void
+  @description Inits the build flags (S_RELEASE_MODE or S_DEBUG_MODE)
+  @returns void
+*/
 void initialize_build_flags() {
     #ifdef S_RELEASE_MODE
         add_flag("-O2");
@@ -383,7 +501,12 @@ void initialize_build_flags() {
     #endif
 }
 
-// INFO | !Uses pkgconfig
+/*
+  @name find_library
+  @parameters char *library
+  @description Finds libs for the given library using pkg-config
+  @returns char *
+*/
 char *find_library(const char *library) {
     char command[256];
     snprintf(command, sizeof(command), "pkg-config --libs %s", library);
@@ -396,7 +519,12 @@ char *find_library(const char *library) {
     return result;
 }
 
-// INFO | !Uses pkgconfig
+/*
+  @name find_flags
+  @parameters char *library
+  @description Finds flags for the given library using pkg-config
+  @returns char *
+*/
 char *find_flags(const char *library) {
     char command[256];
     snprintf(command, sizeof(command), "pkg-config --cflags %s", library);
@@ -409,7 +537,12 @@ char *find_flags(const char *library) {
     return result;
 }
 
-// INFO | Samba System Command
+/*
+  @name set_build directory
+  @parameters char *path
+  @description Simple function for executing an command (using the system function) and loging if verbose mode is enabled
+  @returns int
+*/
 int s_system(char *command) {
     system(command);
 
@@ -422,6 +555,12 @@ int s_system(char *command) {
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 
+/*
+  @name set_build_directory
+  @parameters char *path
+  @description Sets the build directory to the given path
+  @returns void
+*/
 void set_build_directory(const char *path) {
     free(build_directory);
     build_directory = strdup(path);
@@ -430,6 +569,12 @@ void set_build_directory(const char *path) {
     }
 }
 
+/*
+  @name print_libraries
+  @parameters void
+  @description Prints the libraries
+  @returns void
+*/
 void print_libraries() {
     printf("Libraries:\n");
     for (size_t i = 0; i < num_libraries; i++) {
@@ -437,6 +582,12 @@ void print_libraries() {
     }
 }
 
+/*
+  @name create_build_directory
+  @parameters void
+  @description Clears the build directory
+  @returns void
+*/
 void clear_build_directory() {
     char command[256];
 
@@ -451,6 +602,12 @@ void clear_build_directory() {
 
 }
 
+/*
+  @name generate_build_report_to_file
+  @parameters char *filename
+  @description Generates a build report and writes it to a file
+  @returns void
+*/
 void generate_build_report_to_file(const char *filename) {
     verbose_log("Generating build report to file: %s\n", filename);
     FILE *file = fopen(filename, "w");
@@ -502,6 +659,12 @@ void generate_build_report_to_file(const char *filename) {
     system(command);
 }
 
+/*
+  @name generate_timestamp_file
+  @parameters void
+  @description Generates a timestamp file with the current date and time
+  @returns void
+*/
 void generate_timestamp_file() {
     FILE *file = fopen("build.timestamp", "w");
     if (file) {
@@ -514,6 +677,12 @@ void generate_timestamp_file() {
     }
 }
 
+/*
+  @name backup_build_directory
+  @parameters char *backup_dir
+  @description Backups the build_directory to the specified backup_dir
+  @returns void
+*/
 void backup_build_directory(const char *backup_dir) {
     char command[256];
     snprintf(command, sizeof(command), "cp -r %s %s", build_directory, backup_dir);
@@ -534,8 +703,14 @@ void backup_build_directory(const char *backup_dir) {
     #define GO_REBUILD_URSELF SAMBA_GO_REBUILD_URSELF
 #endif
 
-// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+
 // ! WORKS ONLY ON Red Hat based distros and on Debian based distros
+/*
+  @name check_and_install_dependency
+  @parameters char *tool
+  @description Checks if a dependency is installed and installs it if not
+  @returns void
+*/
 void check_and_install_dependency(const char *tool) {
     if (!check_tool(tool)) {
         printf("Dependency '%s' not found. Attempting to install...\n", tool);
@@ -555,11 +730,16 @@ void check_and_install_dependency(const char *tool) {
     }
 }
 
-// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+/*
+  @name interactive_menu
+  @parameters void
+  @description A simple interactive menu for Samba
+  @returns void
+*/
 void interactive_menu() {
     int choice;
     do {
-        printf("\n--- Build System Menu ---\n");
+        printf("\n--- Samba Menu ---\n");
         printf("1. Add Library\n");
         printf("2. Add Include Path\n");
         printf("3. Set Build Directory\n");
@@ -612,25 +792,129 @@ void interactive_menu() {
     } while (choice != 5);
 }
 
-// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+/*
+  @name add_memory_sanitizer
+  @parameters void
+  @description Adds memory sanitizer flags to the flags
+  @returns void
+*/
 void add_memory_sanitizer() {
     add_flag("-fsanitize=address");
     add_flag("-fsanitize=undefined");
 }
 
-// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
+/*
+  @name add_compiler_warnings
+  @parameters void
+  @description Adds compiler warnings to the flags
+  @returns void
+*/
 void add_compiler_warnings() {
     add_flag("-Wall");
     add_flag("-Wextra");
     add_flag("-pedantic");
 }
 
-// Commit Hash: b32ad90f18048d9a67d0e71991e0b40e122e3d34
-void send_notification(const char *message, const char *title) {
+/*
+  @name send_notification
+  @parameters char *app_name, char *title, char *message
+  @description Sends a notification using the notify-send command
+  @returns void
+*/
+void send_notification(const char *app_name, const char *title, const char *message) {
     char command[512];
-    snprintf(command, sizeof(command), "notify-send '%s' '%s'", title, message);
+    snprintf(command, sizeof(command), "notify-send '%s' '%s' -a '%s'", title, message, app_name);
     system(command);
 }
+
+/*
+  @name list_defined_variables
+  @parameters void
+  @description Prints all defined vars
+  @returns void
+*/
+void list_defined_variables() {
+    printf("Defined Variables:\n");
+    for (size_t i = 0; i < num_variables; i++) {
+        printf(" - %s = %s\n", variables[i].key, variables[i].value);
+    }
+}
+
+/*
+  @name get_current_datetime
+  @parameters char *buffer, size_t buffer_size
+  @description Get current datetime and store it in the buffer
+  @returns void
+*/
+void get_current_datetime(char *buffer, size_t buffer_size) {
+    time_t now = time(NULL);
+    struct tm *tm_info = localtime(&now);
+    strftime(buffer, buffer_size, "%Y-%m-%d %H:%M:%S", tm_info);
+}
+
+/*
+  @name generate_uuid
+  @parameters char *buffer
+  @description Generate a UUID string to the buffer
+  @returns void
+*/
+void generate_uuid(char *buffer) {
+    uuid_t uuid;
+    uuid_generate(uuid);
+    uuid_unparse(uuid, buffer);
+}
+
+/*
+  @name is_internet_available
+  @parameters void
+  @description Checks if internet is available
+  @returns bool
+*/
+bool is_internet_available() {
+    char buffer[256];
+    FILE *fp = popen("ping -c 1 8.8.8.8 > /dev/null 2>&1", "r");
+    if (fp == NULL) {
+        return false;
+    }
+    fclose(fp);
+    return true;
+}
+
+
+/*
+  @name list_files_in_directory
+  @parameters char *dir_path
+  @description Print all files in a directory
+  @returns void
+*/
+void list_files_in_directory(const char *dir_path) {
+    struct dirent *entry;
+    DIR *dp = opendir(dir_path);
+    if (dp == NULL) {
+        perror("Error opening directory");
+        return;
+    }
+
+    while ((entry = readdir(dp)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dp);
+}
+
+
+/*
+  @name get_process_id
+  @parameters void
+  @description Get the process ID of the current process
+  @returns pid_t
+*/
+pid_t get_process_id() {
+    return getpid();
+}
+
+
+
 
 
 

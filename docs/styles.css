@@ -1,0 +1,74 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #1e1e2f;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Title styling */
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-top: 20px;
+    color: #00d4ff;
+    text-shadow: 0 0 10px #00d4ff, 0 0 20px #007bb5;
+}
+
+/* Documentation blocks */
+.doc-block {
+    background-color: #2a2a3d;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.doc-block:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* List styling */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+li strong {
+    color: #ff9a00;
+    text-shadow: 0 0 5px #ff9a00;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Links (if any) */
+a {
+    color: #00d4ff;
+    text-decoration: none;
+    border-bottom: 1px dotted #00d4ff;
+    transition: color 0.3s, border-bottom-color 0.3s;
+}
+
+a:hover {
+    color: #ff9a00;
+    border-bottom-color: #ff9a00;
+}
