@@ -18,6 +18,8 @@
 #include <stdarg.h>
 // V1.1
 #include <time.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
