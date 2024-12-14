@@ -106,6 +106,44 @@ void execute_function(const char* func_name, StringArray* args) {
         #define verbose_mode true
     } else if (strcmp(func_name, "printfn") == 0 && args->size == 1) {
         printf("%s\n", args->data[0]);
+    } else if (strcmp(func_name, "check_tool") == 0 && args->size == 1) {
+        check_tool(args->data[0]);
+    } else if (strcmp(func_name, "reset_settings") == 0 && args->size == 0) {
+        reset_settings();
+    } else if (strcmp(func_name, "file_exists") == 0 && args->size == 1) {
+        file_exists(args->data[0]);
+    } else if (strcmp(func_name, "find_library") == 0 && args->size == 1) {
+        find_library(args->data[0]);
+    } else if (strcmp(func_name, "find_flags") == 0 && args->size == 1) {
+        find_flags(args->data[0]);
+    } else if (strcmp(func_name, "s_system") == 0 && args->size == 1) {
+        s_system(args->data[0]);
+    } else if (strcmp(func_name, "set_build_directory") == 0 && args->size == 1) {
+        set_build_directory(args->data[0]);
+    } else if (strcmp(func_name, "print_libraries") == 0 && args->size == 0) {
+        print_libraries();
+    } else if (strcmp(func_name, "s_system") == 0 && args->size == 1) {
+        s_system(args->data[0]);
+    } else if (strcmp(func_name, "clear_build_directory") == 0 && args->size == 0) {
+        clear_build_directory();
+    } else if (strcmp(func_name, "generate_build_report_to_file") == 0 && args->size == 1) {
+        generate_build_report_to_file(args->data[0]);
+    } else if (strcmp(func_name, "generate_timestamp_file") == 0 && args->size == 0) {
+        generate_timestamp_file();
+    } else if (strcmp(func_name, "backup_build_directory") == 0 && args->size == 1) {
+        backup_build_directory(args->data[0]);
+    } else if (strcmp(func_name, "check_and_install_dependency") == 0 && args->size == 1) {
+        check_and_install_dependency(args->data[0]);
+    } else if (strcmp(func_name, "add_memory_sanitizer") == 0 && args->size == 0) {
+        add_memory_sanitizer();
+    } else if (strcmp(func_name, "add_compiler_warnings") == 0 && args->size == 0) {
+        add_compiler_warnings();
+    } else if (strcmp(func_name, "send_notification") == 0 && args->size == 3) {
+        send_notification(args->data[0], args->data[1], args->data[2]);
+    } else if (strcmp(func_name, "list_defined_variables") == 0 && args->size == 0) {
+        list_defined_variables();
+    } else if (strcmp(func_name, "list_files_in_directory") == 0 && args->size == 1) {
+        list_files_in_directory(args->data[0]);
     } else {
         fprintf(stderr, "Unknown function or invalid arguments: %s\n", func_name);
     }
