@@ -903,8 +903,17 @@ pid_t get_process_id() {
 }
 
 
-
-
+/*
+  @name check_library
+  @parameters char *library
+  @description Checks if a library is installed using pkg-config
+  @returns bool
+*/
+bool check_library(const char *library) {
+    char command[256];
+    snprintf(command, sizeof(command), "pkg-config --exists %s > /dev/null 2>&1", library);
+    return (system(command) == 0);
+}
 
 
 
