@@ -144,6 +144,8 @@ void execute_function(const char* func_name, StringArray* args) {
         list_defined_variables();
     } else if (strcmp(func_name, "list_files_in_directory") == 0 && args->size == 1) {
         list_files_in_directory(args->data[0]);
+    } else if (strcmp(func_name, "detect_compiler") == 0 && args->size == 0) {
+        detect_compiler();
     } else {
         fprintf(stderr, "Unknown function or invalid arguments: %s\n", func_name);
     }

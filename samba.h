@@ -37,7 +37,7 @@
 // ...
 
 // -- Macros --
-#define S_VERSION = 1.1
+#define S_VERSION "1.1"
 #define S_SUDO (geteuid() == 0)
 
 #ifdef __linux__
@@ -60,7 +60,6 @@
     }                                                   \
     found;                                              \
 })
-
 
 // -- Compiler --
 #ifdef S_CMP_CLANG
@@ -490,6 +489,7 @@ void SAMBA_GO_REBUILD_URSELF() {
   @returns void
 */
 void initialize_build_flags() {
+    // Modes
     #ifdef S_RELEASE_MODE
         add_flag("-O2");
         add_flag("-DNDEBUG");
@@ -500,6 +500,10 @@ void initialize_build_flags() {
         add_flag("-O0");
         add_flag("-g");
     #endif
+
+    // Integrate Samba Vars to the output executable
+    define_variable("S_VERSION", S_VERSION);
+    define_variable("S_COMPILER", S_COMPILER);
 }
 
 /*
@@ -915,7 +919,28 @@ bool check_library(const char *library) {
     return (system(command) == 0);
 }
 
+/*
+  @name detect_compiler
+  @parameters void
+  @description Detects the compiler being used (installed)
+  @returns void
+*/
+void detect_compiler() {
+    if (check_tool("clang")) {
+        #undef S_COMPILER
+        #define S_COMPILER = "clang";
+    } else if (check_tool("gcc")) {
+        #undef S_COMPILER
+        #define S_COMPILER = "gcc";
+    } else {
+        fprintf(stderr, "Error: No supported compiler found.\n");
+        exit(EXIT_FAILURE);
+    }
+}
 
+void add_no_debug() {
+    add_flag("-DNDEBUG");
+}
 
 
 #endif
