@@ -921,25 +921,6 @@ bool check_library(const char *library) {
 }
 
 /*
-  @name detect_compiler
-  @parameters void
-  @description Detects the compiler being used (installed)
-  @returns void
-*/
-void detect_compiler() {
-    if (check_tool("clang")) {
-        #undef S_COMPILER
-        #define S_COMPILER = "clang";
-    } else if (check_tool("gcc")) {
-        #undef S_COMPILER
-        #define S_COMPILER = "gcc";
-    } else {
-        fprintf(stderr, "Error: No supported compiler found.\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
-/*
   @name add_no_debug
   @parameters void
   @description Sets the NDEBUG flag
@@ -964,7 +945,7 @@ void *compile_wrapper(void *args) {
 /*
   @name compile_parallel
   @parameters char **targets, char **outputs, int num_targets
-  @description Compiles the targets in parallel (instead of define treads define num_targets)
+  @description Compiles the targets in parallel (instead of define threads define num_targets)
   @returns int
 */
 int compile_parallel(char **targets, char **outputs, int num_targets) {
@@ -995,3 +976,5 @@ int compile_parallel(char **targets, char **outputs, int num_targets) {
 }
 
 #endif
+
+
