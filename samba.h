@@ -20,6 +20,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <pthread.h>
 
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
@@ -70,7 +71,7 @@
     #endif
 #else
     #ifndef S_CACHE_COMPILATION
-            #define S_COMPILER "gcc"
+        #define S_COMPILER "gcc"
     #else
         #define S_COMPILER "ccache gcc"
     #endif
@@ -938,9 +939,59 @@ void detect_compiler() {
     }
 }
 
+/*
+  @name add_no_debug
+  @parameters void
+  @description Sets the NDEBUG flag
+  @returns void
+*/
 void add_no_debug() {
     add_flag("-DNDEBUG");
 }
 
+typedef struct {
+    char *target;
+    char *output;
+    bool create_shared;
+} compile_args_t;
+
+void *compile_wrapper(void *args) {
+    compile_args_t *compile_args = (compile_args_t *)args;
+    compile(compile_args->target, compile_args->output, compile_args->create_shared);
+    return NULL;
+}
+
+/*
+  @name compile_parallel
+  @parameters char **targets, char **outputs, int num_targets
+  @description Compiles the targets in parallel (instead of define treads define num_targets)
+  @returns int
+*/
+int compile_parallel(char **targets, char **outputs, int num_targets) {
+    pthread_t thread_ids[num_targets];
+    for (int i = 0; i < num_targets; i++) {
+        compile_args_t *args = (compile_args_t *)malloc(sizeof(compile_args_t));
+        if (args == NULL) {
+            fprintf(stderr, "Memory allocation failed\n");
+            return -1;
+        }
+
+        args->target = targets[i];
+        args->output = outputs[i];
+        args->create_shared = false;
+
+        if (pthread_create(&thread_ids[i], NULL, compile_wrapper, (void *)args) != 0) {
+            fprintf(stderr, "Error: Unable to create thread\n");
+            free(args);
+            return -1;
+        }
+    }
+
+    for (int i = 0; i < num_targets; i++) {
+        pthread_join(thread_ids[i], NULL);
+    }
+
+    return 0;
+}
 
 #endif
