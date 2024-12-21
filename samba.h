@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <pthread.h>
+#include <limits.h>
 
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
@@ -81,6 +82,8 @@
 #endif
 
 char *build_directory = "build";
+char *checkpoints_directory = "checkpoints/";
+
 
 #ifndef SAMBA_H
 #define SAMBA_H
@@ -555,15 +558,19 @@ char *find_flags(const char *library) {
 }
 
 /*
-  @name set_build directory
-  @parameters char *path
-  @description Simple function for executing an command (using the system function) and loging if verbose mode is enabled
+  @name s_command
+  @parameters char *fmt, ...
+  @description Simple function for executing an command (using the system function) and loging if verbose mode is enabled also supports fmt
   @returns int
 */
-int s_system(char *command) {
-    system(command);
-
+int s_command(char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    char command[256];
+    vsnprintf(command, sizeof(command), fmt, args);
     verbose_log("Executing command: %s\n", command);
+    va_end(args);
+    return system(command);
 }
 
 //////////////////////////////////////////////////
@@ -983,8 +990,59 @@ int compile_parallel(char **targets, char **outputs, int num_targets) {
         pthread_join(thread_ids[i], NULL);
     }
 
-    return 0;
+
 }
+
+long get_biggest_number_in_dir(const char* directory_path) {
+    DIR *dir;
+    struct dirent *entry;
+    long biggest_num = 0;
+    char *endptr;
+    char full_path[PATH_MAX];
+    struct stat path_stat;
+
+    dir = opendir(directory_path);
+    if (dir == NULL) {
+        mkdir(directory_path, 0777);
+        return 0;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        snprintf(full_path, sizeof(full_path), "%s/%s", directory_path, entry->d_name);
+
+        if (stat(full_path, &path_stat) != 0) {
+            continue;
+        }
+
+        if (S_ISDIR(path_stat.st_mode)) {
+            long current_num = strtol(entry->d_name, &endptr, 10);
+            if (*endptr == '\0' && entry->d_name[0] != '\0') {
+                if (current_num > biggest_num) {
+                    biggest_num = current_num;
+                }
+            }
+        }
+    }
+
+    closedir(dir);
+    return biggest_num;
+}
+
+void checkpoint_backup() {
+    char dir_name[32];
+    long next_num;
+
+    next_num = get_biggest_number_in_dir(checkpoints_directory) + 1;
+
+    snprintf(dir_name, sizeof(dir_name), "%ld", next_num);
+
+    if (dir_name[0] != '\0') {
+        s_command("mkdir -p %s%s", checkpoints_directory, dir_name);
+        s_command("cp -r %s/* %s%s/", build_directory, checkpoints_directory, dir_name);
+    }
+}
+
+
 
 
 

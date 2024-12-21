@@ -137,14 +137,12 @@ void execute_function(const char* func_name, StringArray* args) {
         find_library(args->data[0]);
     } else if (strcmp(func_name, "find_flags") == 0 && args->size == 1) {
         find_flags(args->data[0]);
-    } else if (strcmp(func_name, "s_system") == 0 && args->size == 1) {
-        s_system(args->data[0]);
+    } else if (strcmp(func_name, "s_command") == 0 && args->size == 1) {
+        s_command(args->data[0]);
     } else if (strcmp(func_name, "set_build_directory") == 0 && args->size == 1) {
         set_build_directory(args->data[0]);
     } else if (strcmp(func_name, "print_libraries") == 0 && args->size == 0) {
         print_libraries();
-    } else if (strcmp(func_name, "s_system") == 0 && args->size == 1) {
-        s_system(args->data[0]);
     } else if (strcmp(func_name, "clear_build_directory") == 0 && args->size == 0) {
         clear_build_directory();
     } else if (strcmp(func_name, "generate_build_report_to_file") == 0 && args->size == 1) {
