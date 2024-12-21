@@ -33,14 +33,13 @@
 // | S_RELEASE_MODE | Setting Release Flags             | Disabled
 // | S_DEBUG_MODE | Setting Debug Flags                 | Disabled
 // | S_SUDO | Running as sudo?                          | NULL
-
-// INFO | Binary Macros | Each starts with SAMBA_ and can be used inside of the compiled file
-// ...
+// | S_ERROR | This returns a func if its error         | -1
+// | S_REBUILD_NO_OUTPUT | Displays no out on rebuild   | -1
 
 // -- Macros --
 #define S_VERSION "1.1"
 #define S_SUDO (geteuid() == 0)
-
+#define S_ERROR -1
 #ifdef __linux__
     #define S_OS "linux"
 #elif defined(__APPLE__)
@@ -63,6 +62,10 @@
 })
 
 // -- Compiler --
+#ifdef S_COMPILER
+#undef S_COMPILER
+#endif
+
 #ifdef S_CMP_CLANG
     #ifndef S_CACHE_COMPILATION
         #define S_COMPILER "clang"
@@ -166,11 +169,11 @@ char *escape_argument(const char *arg) {
 */
 int define_variable(const char *var_name, const char *var_value) {
     variables = realloc(variables, sizeof(Entry) * (num_variables + 1));
-    if (!variables) return -1;
+    if (!variables) return S_ERROR;
     variables[num_variables].key = strdup(var_name);
-    if (!variables[num_variables].key) return -1;
+    if (!variables[num_variables].key) return S_ERROR;
     variables[num_variables].value = strdup(var_value);
-    if (!variables[num_variables].value) return -1;
+    if (!variables[num_variables].value) return S_ERROR;
     num_variables++;
     return 0;
 }
@@ -183,9 +186,9 @@ int define_variable(const char *var_name, const char *var_value) {
 */
 int define_library(const char *library) {
     libraries = realloc(libraries, sizeof(Entry) * (num_libraries + 1));
-    if (!libraries) return -1;
+    if (!libraries) return S_ERROR;
     libraries[num_libraries].key = strdup(library);
-    if (!libraries[num_libraries].key) return -1;
+    if (!libraries[num_libraries].key) return S_ERROR;
     libraries[num_libraries].value = NULL;
     num_libraries++;
     return 0;
@@ -199,9 +202,9 @@ int define_library(const char *library) {
 */
 int define_include(const char *include_path) {
     includes = realloc(includes, sizeof(Entry) * (num_includes + 1));
-    if (!includes) return -1;
+    if (!includes) return S_ERROR;
     includes[num_includes].key = strdup(include_path);
-    if (!includes[num_includes].key) return -1;
+    if (!includes[num_includes].key) return S_ERROR;
     includes[num_includes].value = NULL;
     num_includes++;
     return 0;
@@ -215,9 +218,9 @@ int define_include(const char *include_path) {
 */
 int define_library_path(const char *path) {
     library_paths = realloc(library_paths, sizeof(Entry) * (num_library_paths + 1));
-    if (!library_paths) return -1;
+    if (!library_paths) return S_ERROR;
     library_paths[num_library_paths].key = strdup(path);
-    if (!library_paths[num_library_paths].key) return -1;
+    if (!library_paths[num_library_paths].key) return S_ERROR;
     library_paths[num_library_paths].value = NULL;
     num_library_paths++;
     return 0;
@@ -231,10 +234,10 @@ int define_library_path(const char *path) {
 */
 int add_flag(const char *flag) {
     char **temp = realloc(flags, sizeof(char *) * (num_flags + 1));
-    if (!temp) return -1;
+    if (!temp) return S_ERROR;
     flags = temp;
     flags[num_flags] = strdup(flag);
-    if (!flags[num_flags]) return -1;
+    if (!flags[num_flags]) return S_ERROR;
     num_flags++;
     return 0;
 }
@@ -431,13 +434,16 @@ int needs_rebuild(const char *source_file, const char *executable) {
     }
 
     if (source_stat.st_mtime > exe_stat.st_mtime) {
-        verbose_log("Source file '%s' is newer than executable '%s'. Rebuild required.\n", source_file, executable);
+        #ifndef S_REBUILD_NO_OUTPUT
+            verbose_log("Source file '%s' is newer than executable '%s'. Rebuild required.\n", source_file, executable);
+        #endif
 
         return 1;
     }
 
-    verbose_log("Executable '%s' is up-to-date. Running...\n", executable);
-
+    #ifndef S_REBUILD_NO_OUTPUT
+        verbose_log("Executable '%s' is up-to-date. Running...\n", executable);
+    #endif
     return 0;
 }
 
@@ -465,18 +471,23 @@ void SAMBA_GO_REBUILD_URSELF() {
     if (needs_rebuild(source_file, executable) == 1) {
         const char *build_command = "gcc -o samba samba.c -O2 -DNDEBUG -s";
 
-        verbose_log("Rebuilding '%s' from source '%s'.\n", executable, source_file);
-
+        #ifndef S_REBUILD_NO_OUTPUT
+            verbose_log("Rebuilding '%s' from source '%s'.\n", executable, source_file);
+        #endif
         if (system(build_command) != 0) {
             exit_error(__func__, "Build failed\n");
         }
 
-        verbose_log("Build completed successfully.\n");
+        #ifndef S_REBUILD_NO_OUTPUT
+            verbose_log("Build completed successfully.\n");
+        #endif
 
         system("clear");
 
         const char *run_command = "./samba";
-        verbose_log("Executing '%s'...\n", executable);
+        #ifndef S_REBUILD_NO_OUTPUT
+            verbose_log("Executing '%s'...\n", executable);
+        #endif
         if (system(run_command) != 0) {
             exit_error(__func__, "Execution failed\n");
         }
@@ -954,7 +965,7 @@ int compile_parallel(char **targets, char **outputs, int num_targets) {
         compile_args_t *args = (compile_args_t *)malloc(sizeof(compile_args_t));
         if (args == NULL) {
             fprintf(stderr, "Memory allocation failed\n");
-            return -1;
+            return S_ERROR;
         }
 
         args->target = targets[i];
@@ -964,7 +975,7 @@ int compile_parallel(char **targets, char **outputs, int num_targets) {
         if (pthread_create(&thread_ids[i], NULL, compile_wrapper, (void *)args) != 0) {
             fprintf(stderr, "Error: Unable to create thread\n");
             free(args);
-            return -1;
+            return S_ERROR;
         }
     }
 
@@ -974,6 +985,9 @@ int compile_parallel(char **targets, char **outputs, int num_targets) {
 
     return 0;
 }
+
+
+
 
 #endif
 

@@ -2,8 +2,8 @@ build
 .idea
 SP
 samba_compiler
-samba.c
 samba
 sss.txt
 docs
 d.py
+.vscode

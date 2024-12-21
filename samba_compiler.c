@@ -32,6 +32,20 @@ char* trim(char* str) {
     return str;
 }
 
+char* strip(char* str, char ch) {
+    if (!str) return NULL;
+
+    char* start = str;
+    while (*start == ch) start++;
+
+    char* end = str + strlen(str) - 1;
+    while (end > start && *end == ch) end--;
+
+    *(end + 1) = '\0';
+    return start;
+}
+
+
 StringArray* create_string_array(size_t initial_capacity) {
     StringArray* array = malloc(sizeof(StringArray));
     if (!array) return NULL;
@@ -79,7 +93,13 @@ StringArray* parse_arguments(char* line) {
 
     char* token = strtok(line, ",");
     while (token) {
-        if (append_to_string_array(args, trim(token)) < 0) {
+        char* stripped = trim(token);
+        stripped = strip(stripped, '"');
+        if (strlen(stripped) == 0) {
+            token = strtok(NULL, ",");
+            continue;
+        }
+        if (append_to_string_array(args, stripped) < 0) {
             free_string_array(args);
             return NULL;
         }
@@ -87,6 +107,7 @@ StringArray* parse_arguments(char* line) {
     }
     return args;
 }
+
 
 void execute_function(const char* func_name, StringArray* args) {
     if (strcmp(func_name, "define_variable") == 0 && args->size == 2) {
@@ -144,8 +165,6 @@ void execute_function(const char* func_name, StringArray* args) {
         list_defined_variables();
     } else if (strcmp(func_name, "list_files_in_directory") == 0 && args->size == 1) {
         list_files_in_directory(args->data[0]);
-    } else if (strcmp(func_name, "detect_compiler") == 0 && args->size == 0) {
-        detect_compiler();
     } else {
         fprintf(stderr, "Unknown function or invalid arguments: %s\n", func_name);
     }
