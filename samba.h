@@ -1084,8 +1084,15 @@ void delete_checkpoint(long checkpoint_num) {
     s_command("rm -rf %s%s", checkpoints_directory, dir_name);
 }
 
-#endif
+bool checkpoint_exists(long checkpoint_num) {
+    char dir_path[PATH_MAX];
+    snprintf(dir_path, sizeof(dir_path), "%s%ld", checkpoints_directory, checkpoint_num);
+    return access(dir_path, F_OK) == 0;
+}
 
+void delete_all_checkpoints() {
+    s_command("rm -rf %s*", checkpoints_directory);
+}
 
 
 #endif
