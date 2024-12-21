@@ -586,7 +586,7 @@ int s_command(char *fmt, ...) {
   @returns void
 */
 void set_build_directory(const char *path) {
-    free(build_directory);
+    build_directory = NULL;
     build_directory = strdup(path);
     if (!build_directory) {
         exit_error(__func__, "Failed to set build directory");
@@ -695,7 +695,7 @@ void generate_timestamp_file() {
         time_t now = time(NULL);
         fprintf(file, "Last build: %s", ctime(&now));
         fclose(file);
-        printf("Build timestamp generated.\n");
+        verbose_log("Build timestamp generated.\n");
     } else {
         fprintf(stderr, "Error generating timestamp file.\n");
     }
@@ -737,7 +737,7 @@ void backup_build_directory(const char *backup_dir) {
 */
 void check_and_install_dependency(const char *tool) {
     if (!check_tool(tool)) {
-        printf("Dependency '%s' not found. Attempting to install...\n", tool);
+        verbose_log("Dependency '%s' not found. Attempting to install...\n", tool);
         if (check_tool("dnf")) {
             char command[256];
             snprintf(command, sizeof(command), "sudo dnf install -y %s", tool);
@@ -750,7 +750,7 @@ void check_and_install_dependency(const char *tool) {
             fprintf(stderr, "Error: Package manager not found. Please install '%s' manually.\n", tool);
         }
     } else {
-        printf("Dependency '%s' is already installed.\n", tool);
+        verbose_log("Dependency '%s' is already installed.\n", tool);
     }
 }
 
@@ -1094,7 +1094,28 @@ void delete_all_checkpoints() {
     s_command("rm -rf %s*", checkpoints_directory);
 }
 
+int directory_contains(const char *path, const char *filename) {
+    DIR *dir = opendir(path);
+    struct dirent *entry;
+
+    if (dir == NULL) {
+        perror("opendir");
+        return 0;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, filename) == 0) {
+            closedir(dir);
+            return 1;
+        }
+    }
+
+    closedir(dir);
+    return 0;
+}
+
 
 #endif
+
 
 
