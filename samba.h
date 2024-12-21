@@ -1028,6 +1028,12 @@ long get_biggest_number_in_dir(const char* directory_path) {
     return biggest_num;
 }
 
+/*
+  @name checkpoint_backup
+  @parameters void
+  @description Copies compiled binaries to a checkpoint directory
+  @returns void
+*/
 void checkpoint_backup() {
     char dir_name[32];
     long next_num;
@@ -1042,8 +1048,43 @@ void checkpoint_backup() {
     }
 }
 
+void restore_checkpoint(long checkpoint_num) {
+    char dir_name[32];
+    snprintf(dir_name, sizeof(dir_name), "%ld", checkpoint_num);
 
+    if (access(build_directory, F_OK) != 0) {
+        s_command("mkdir -p %s", build_directory);
+    }
 
+    s_command("cp -r %s%s/* %s/", checkpoints_directory, dir_name, build_directory);
+}
+
+void list_checkpoints() {
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir(checkpoints_directory);
+    if (dir == NULL) {
+        fprintf(stderr, "Error: Could not open checkpoints directory\n");
+        return;
+    }
+
+    printf("Available checkpoints:\n");
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_DIR && entry->d_name[0] != '.') {
+            printf("Checkpoint %s\n", entry->d_name);
+        }
+    }
+    closedir(dir);
+}
+
+void delete_checkpoint(long checkpoint_num) {
+    char dir_name[32];
+    snprintf(dir_name, sizeof(dir_name), "%ld", checkpoint_num);
+    s_command("rm -rf %s%s", checkpoints_directory, dir_name);
+}
+
+#endif
 
 
 

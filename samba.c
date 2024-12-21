@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
 	    if (S_SUDO) {
 	        system("mkdir /usr/include/samba");
         	system("cp samba.h /usr/include/samba/");
+        	system("cp samba_helper_lib.h /usr/include/samba/");
 	    }else {
 	        system("mkdir ~/.local/include");
         	system("cp samba.h ~/.local/include/samba/");
