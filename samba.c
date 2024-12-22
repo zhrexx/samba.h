@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 bool check_directory() {
-    if (directory_contains("./tests", "test1.c")) {
+    if (directory_contains("./tests", "test1.c") && directory_contains(".", "samba.h")) {
         return true;
     } else {
         return false;

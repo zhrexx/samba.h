@@ -1114,6 +1114,10 @@ int directory_contains(const char *path, const char *filename) {
     return 0;
 }
 
+bool is_file_writable(const char *path) {
+    return (access(path, W_OK) == 0);
+}
+
 
 #endif
 
