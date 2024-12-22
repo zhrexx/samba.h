@@ -182,7 +182,7 @@ void execute_function(const char* func_name, StringArray* args) {
     }
 }
 
-void parse_build_file(const char* filename, int argc, char **argv, bool program_arg_mode) {
+void parse_build_file(const char* filename, int argc, char **argv_, bool program_arg_mode) {
     if (!filename) {
         fprintf(stderr, "Invalid filename.\n");
         return;
@@ -196,6 +196,15 @@ void parse_build_file(const char* filename, int argc, char **argv, bool program_
     char line[2048];
     memset(program_arg, 0, sizeof(program_arg));
     memset(line, 0, sizeof(line));
+
+    char **argv = argv_;
+
+    if (argc == 1) {
+        argv = (char **)malloc(2 * sizeof(char*));
+        argv[0] = argv_[0];
+        argv[1] = strdup("default");
+        argc = 2;
+    }
 
     while (fgets(line, sizeof(line), file)) {
         char* trimmed_line = trim(line);
@@ -222,6 +231,7 @@ void parse_build_file(const char* filename, int argc, char **argv, bool program_
             strncpy(program_arg, trimmed_line, strlen(trimmed_line) - 2);
             program_arg[strlen(trimmed_line) - 1] = '\0';
         }
+
 
         if (!program_arg_mode || CONTAINS_STRING(argv, argc, program_arg)) {
             char* func_name_end = strchr(trimmed_line, '(');
