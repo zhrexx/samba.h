@@ -177,6 +177,10 @@ void execute_function(const char* func_name, StringArray* args) {
         list_defined_variables();
     } else if (strcmp(func_name, "list_files_in_directory") == 0 && args->size == 1) {
         list_files_in_directory(args->data[0]);
+    } else if (strcmp(func_name, "printfn") == 0 && args->size == 1) {
+        printf("%s\n", args->data[0]);
+    } else if (strcmp(func_name, "install_dependency") == 0 && args->size == 1) {
+        install_dependency(args->data[0]);
     } else {
         fprintf(stderr, "Unknown function or invalid arguments: %s\n", func_name);
     }

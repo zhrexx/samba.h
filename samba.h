@@ -1118,6 +1118,37 @@ bool is_file_writable(const char *path) {
     return (access(path, W_OK) == 0);
 }
 
+void install_dependency(char *tool) {
+    if (check_tool("dnf")) {
+        char command[256];
+        snprintf(command, sizeof(command), "sudo dnf install -y %s", tool);
+        system(command);
+    } else if (check_tool("apt-get")) {
+        char command[256];
+        snprintf(command, sizeof(command), "sudo apt-get install -y %s", tool);
+        system(command);
+    } else {
+        fprintf(stderr, "Error: Package manager not found. Please install '%s' manually.\n", tool);
+    }
+}
+
+bool check_dependencies(char **dependencies, int dependencies_count, bool print, bool install_if_not_find) {
+    for (int i = 0; i < dependencies_count; i++) {
+        if (!check_library(dependencies[i])) {
+            if (print) printf("'%s' not found.\n", dependencies[i]);
+
+            if (install_if_not_find) {
+                install_dependency(dependencies[i]);
+            }
+        }
+        else {
+            if (print) printf("| '%s' found.\n", dependencies[i]);
+        }
+    }
+}
+
+
+
 
 #endif
 
