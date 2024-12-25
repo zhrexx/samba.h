@@ -136,6 +136,8 @@ void execute_function(const char* func_name, StringArray* args) {
         add_flag(args->data[0]);
     } else if (strcmp(func_name, "compile") == 0 && args->size == 2) {
         compile(args->data[0], args->data[1], false);
+    } else if (strcmp(func_name, "compile_s") == 0 && args->size == 2) {
+        compile(args->data[0], args->data[1], true);
     } else if (strcmp(func_name, "enable_verbose") == 0 && args->size == 0) {
         #undef verbose_mode
         #define verbose_mode
@@ -177,14 +179,18 @@ void execute_function(const char* func_name, StringArray* args) {
         list_defined_variables();
     } else if (strcmp(func_name, "list_files_in_directory") == 0 && args->size == 1) {
         list_files_in_directory(args->data[0]);
-    } else if (strcmp(func_name, "printfn") == 0 && args->size == 1) {
-        printf("%s\n", args->data[0]);
     } else if (strcmp(func_name, "install_dependency") == 0 && args->size == 1) {
         install_dependency(args->data[0]);
     } else if (strcmp(func_name, "exit") == 0 && args->size == 1) {
         exit(atoi(args->data[0]));
     } else if (strcmp(func_name, "eprintfn") == 0 && args->size == 1) {
         fprintf(stderr, "\033[0;31m%s\033[0m\n", args->data[0]);
+    } else if (strcmp(func_name, "remove_variable") == 0 && args->size == 1) {
+        remove_variable(args->data[0]);
+    } else if (strcmp(func_name, "remove_flag") == 0 && args->size == 1) {
+        remove_flag(args->data[0]);
+    } else if (strcmp(func_name, "print_flags") == 0 && args->size == 0) {
+        print_flags();
     } else {
         fprintf(stderr, "Unknown function or invalid arguments: %s\n", func_name);
     }
@@ -291,13 +297,19 @@ void parse_build_file(const char* filename, int argc, char **argv_, bool program
 }
 
 int main(int argc, char* argv[]) {
-    clock_t start = clock();
-    parse_build_file("build.samba", argc, argv, true);
-    clock_t end = clock();
+    if (argc == 2 && strcmp(argv[1], "--version") == 0) {
+        printf("SambaCompiler v2\n");
+        printf("| samba.h v1.1  \n");
+        printf("| githash: %s\n", get_git_hash());
+    } else {
+        clock_t start = clock();
+        parse_build_file("build.samba", argc, argv, true);
+        clock_t end = clock();
 
-    double elapsed_time = (double)(end - start) / CLOCKS_PER_SEC;
-    if (elapsed_time < 0) elapsed_time = 0;
-    printf("Build completed in %.2f seconds.\n", elapsed_time);
+        double elapsed_time = (double)(end - start) / CLOCKS_PER_SEC;
+        if (elapsed_time < 0) elapsed_time = 0;
+        printf("Build completed in %.2f seconds.\n", elapsed_time);
 
-    return EXIT_SUCCESS;
+        return EXIT_SUCCESS;
+    }
 }

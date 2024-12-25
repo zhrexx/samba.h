@@ -247,6 +247,39 @@ int add_flag(const char *flag) {
 }
 
 /*
+  @name remove_flag
+  @parameters char *flag
+  @description Removes a flag from the build configuration
+  @returns int
+*/
+int remove_flag(const char *flag) {
+    int index = -1;
+    for (int i = 0; i < num_flags; i++) {
+        if (strcmp(flags[i], flag) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) return S_ERROR;
+
+    free(flags[index]);
+
+    for (int i = index; i < num_flags - 1; i++) {
+        flags[i] = flags[i + 1];
+    }
+
+    num_flags--;
+
+    char **temp = realloc(flags, sizeof(char *) * num_flags);
+    if (!temp && num_flags > 0) return S_ERROR;
+    flags = temp;
+
+    return 0;
+}
+
+
+/*
   @name remove_library
   @parameters char *library
   @description Removes a library from the list of libraries.
@@ -293,6 +326,39 @@ void remove_library_path(const char *path) {
         }
     }
 }
+
+
+/*
+  @name remove_variable
+  @parameters char *var_name
+  @description Removes a Variable from Built Binary
+  @returns int
+*/
+int remove_variable(const char *var_name) {
+    int index = -1;
+    for (int i = 0; i < num_variables; i++) {
+        if (strcmp(variables[i].key, var_name) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) return S_ERROR;
+
+    free(variables[index].key);
+    free(variables[index].value);
+
+    for (int i = index; i < num_variables - 1; i++) {
+        variables[i] = variables[i + 1];
+    }
+
+    num_variables--;
+    variables = realloc(variables, sizeof(Entry) * num_variables);
+    if (!variables && num_variables > 0) return S_ERROR;
+
+    return 0;
+}
+
 
 /*
   @name build_directory_exists
@@ -1255,6 +1321,18 @@ int plugin_shutdown(void *dlopen_) {
     dlclose(dlopen_);
     return 1;
 }
+
+
+void print_flags() {
+    printf("Flags:\n");
+    for (size_t i = 0; i < num_flags; i++) {
+        printf(" - %s\n", flags[i]);
+    }
+}
+
+
+
+
 
 #endif
 

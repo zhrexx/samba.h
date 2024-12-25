@@ -1,0 +1,6 @@
+rebuild:
+    enable_verbose();
+    add_flag("-fPIC");
+    compile_s("base.c", "libbase.so");
+    remove_flag("-fPIC");
+    compile("samba.c", "samba");
