@@ -1215,7 +1215,14 @@ void save_git_log_to_file(char *file_path) {
     s_command("git log > %s", file_path);
 }
 
+
+static char *cached_hash = NULL;
+
 char *get_git_hash() {
+    if (cached_hash != NULL) {
+        return cached_hash;
+    }
+
     FILE *command_exec = popen("git rev-parse HEAD", "r");
     if (command_exec == NULL) {
         perror("Failed to run command");
@@ -1231,15 +1238,15 @@ char *get_git_hash() {
 
     fclose(command_exec);
 
-    char *hash = malloc(41);
-    if (hash == NULL) {
+    cached_hash = malloc(41);
+    if (cached_hash == NULL) {
         perror("Failed to allocate memory");
         return NULL;
     }
 
-    snprintf(hash, 41, "%s", buffer);
+    snprintf(cached_hash, 41, "%s", buffer);
 
-    return hash;
+    return cached_hash;
 }
 
 
