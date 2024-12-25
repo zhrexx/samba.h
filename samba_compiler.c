@@ -181,6 +181,10 @@ void execute_function(const char* func_name, StringArray* args) {
         printf("%s\n", args->data[0]);
     } else if (strcmp(func_name, "install_dependency") == 0 && args->size == 1) {
         install_dependency(args->data[0]);
+    } else if (strcmp(func_name, "exit") == 0 && args->size == 1) {
+        exit(atoi(args->data[0]));
+    } else if (strcmp(func_name, "eprintfn") == 0 && args->size == 1) {
+        fprintf(stderr, "\033[0;31m%s\033[0m\n", args->data[0]);
     } else {
         fprintf(stderr, "Unknown function or invalid arguments: %s\n", func_name);
     }

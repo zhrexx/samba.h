@@ -22,6 +22,7 @@
 #include <dirent.h>
 #include <pthread.h>
 #include <limits.h>
+#include <dlfcn.h>
 
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
@@ -1136,16 +1137,79 @@ bool check_dependencies(char **dependencies, int dependencies_count, bool print,
     for (int i = 0; i < dependencies_count; i++) {
         if (!check_library(dependencies[i])) {
             if (print) printf("'%s' not found.\n", dependencies[i]);
-
-            if (install_if_not_find) {
-                install_dependency(dependencies[i]);
-            }
+            if (install_if_not_find) install_dependency(dependencies[i]);
         }
         else {
             if (print) printf("| '%s' found.\n", dependencies[i]);
         }
     }
 }
+
+void save_git_log_to_file(char *file_path) {
+    s_command("git log > %s", file_path);
+}
+
+char *get_git_hash() {
+    FILE *command_exec = popen("git rev-parse HEAD", "r");
+    if (command_exec == NULL) {
+        perror("Failed to run command");
+        return NULL;
+    }
+
+    char buffer[64];
+    if (fgets(buffer, sizeof(buffer), command_exec) == NULL) {
+        perror("Failed to read command output");
+        fclose(command_exec);
+        return NULL;
+    }
+
+    fclose(command_exec);
+
+    char *hash = malloc(41);
+    if (hash == NULL) {
+        perror("Failed to allocate memory");
+        return NULL;
+    }
+
+    snprintf(hash, 41, "%s", buffer);
+
+    return hash;
+}
+
+
+
+typedef struct {
+    char *plugin_name;
+    char *plugin_file;
+} Plugin;
+
+typedef int (*p_ft)(void);
+
+void *plugin_connect(Plugin *plugin) {
+    void *opened = dlopen(plugin->plugin_file, RTLD_LAZY);
+
+    p_ft init_function = (p_ft)dlsym(opened, "p_init");
+
+    if (!opened) { fprintf(stderr, "Error: %s\n", dlerror()); dlclose(opened); return NULL;}
+
+    int result = init_function();
+    if (result == 1) {
+        printf("Plugin '%s' inited successfully.\n", plugin->plugin_name);
+    } else {
+        printf("Plugin '%s' failed to init.\n", plugin->plugin_name);
+        return NULL;
+    }
+
+    return opened;
+}
+
+int call_function(void *dlopen_, char *func_name) {
+    p_ft function = (p_ft)dlsym(dlopen_, func_name);
+    if (!function) { fprintf(stderr, "Error: %s\n", dlerror()); return 0; }
+    return function();
+}
+
+
 
 
 
