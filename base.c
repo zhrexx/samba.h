@@ -52,8 +52,14 @@ int p_call_event(const char *event_id) {
         if (strcmp(p_event_manager->events[i].event_id, event_id) == 0) {
             if (p_event_manager->events[i].status == 0) {
                 p_event_manager->events[i].status = 1;
-                p_event_manager->events[i].callback();
-                return 1;
+                if (p_event_manager->events[i].callback == NULL) {
+                    return 1;
+                }
+                else {
+                    p_event_manager->events[i].callback();
+                    return 1;
+                }
+
             } else {
                 return 0;
             }
@@ -77,10 +83,6 @@ int p_execute_event(const char *event_id) {
     return 0;
 }
 
-static void p_ran(void) {
-    printf("Event called 'ran'\n");
-}
-
 int p_get_event_status(const char *event_id) {
     P_EventManager *event_manager = p_get_event_manager();
     for (int i = 0; i < event_manager->count_events; i++) {
@@ -99,13 +101,10 @@ int p_init(void) {
     if (!p_init_event_manager()) {
         return 0;
     }
-    if (!p_register_event("ran", p_ran)) {
+    if (!p_register_event("ran", NULL)) {
         return 0;
     }
     p_call_event("ran");
-
-
-
 
     return 1;
 }
