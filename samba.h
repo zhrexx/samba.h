@@ -1194,25 +1194,67 @@ void *plugin_connect(Plugin *plugin) {
 
     int result = init_function();
     if (result == 1) {
-        printf("Plugin '%s' inited successfully.\n", plugin->plugin_name);
+        verbose_log("Plugin '%s' inited successfully.\n", plugin->plugin_name);
     } else {
-        printf("Plugin '%s' failed to init.\n", plugin->plugin_name);
+        verbose_log("Plugin '%s' failed to init.\n", plugin->plugin_name);
         return NULL;
     }
 
     return opened;
 }
 
-int call_function(void *dlopen_, char *func_name) {
+int plugin_call_function(void *dlopen_, char *func_name) {
     p_ft function = (p_ft)dlsym(dlopen_, func_name);
     if (!function) { fprintf(stderr, "Error: %s\n", dlerror()); return 0; }
     return function();
 }
 
+int plugin_unload(void *dlopen_) {
+    if (!dlopen_) {
+        fprintf(stderr, "Error: Invalid plugin handle for unloading.\n");
+        return 0;
+    }
 
+    dlclose(dlopen_);
+    verbose_log("Plugin successfully unloaded.\n");
+    return 1;
+}
 
+void *plugin_reload(void *dlopen_, Plugin *plugin) {
+    if (!dlopen_ || !plugin) {
+        fprintf(stderr, "Error: Invalid plugin handle for reloading.\n");
+        return NULL;
+    }
 
+    dlclose(dlopen_);
+    verbose_log("Plugin successfully reloaded.\n");
+    return plugin_connect(plugin);
+}
 
+int plugin_loaded(void *dlopen_) {
+    return dlopen_ != NULL;
+}
+
+int plugin_shutdown(void *dlopen_) {
+    if (!dlopen_) {
+        fprintf(stderr, "Error: Invalid plugin handle for shutdown.\n");
+        return 0;
+    }
+
+    p_ft shutdown_function = (p_ft)dlsym(dlopen_, "p_shutdown");
+    if (!shutdown_function) { fprintf(stderr, "Error: %s\n", dlerror()); return 0; }
+
+    int result = shutdown_function();
+    if (result == 1) {
+        verbose_log("Plugin shutdown successfully.\n");
+    } else {
+        verbose_log("Plugin shutdown failed.\n");
+        return 0;
+    }
+
+    dlclose(dlopen_);
+    return 1;
+}
 
 #endif
 

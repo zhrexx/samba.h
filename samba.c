@@ -63,9 +63,9 @@ int main(int argc, char *argv[]) {
 
     if (argc <= 1) printf("\033[0;31mUsage: samba --help\n\033[0m");
 
-    // Plugins
-    // Plugin pl = {"base", "./libbase.so"};
-    // plugin_connect(&pl);
+    Plugin plugin = {"base", "./libbase.so"};
+    void *dl = plugin_connect(&plugin);
+
 
     free_all();
 
