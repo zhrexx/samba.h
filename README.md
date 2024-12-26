@@ -61,6 +61,7 @@ The `samba.h` library is a lightweight and dynamic build system designed to stre
 **Tools Used**
 - `pkg-config`: Automatically find libraries and flags.
 - `ccache`: Accelerate recompilation by caching results.
+- `libcurl`: S_CURLE
 
 **Rebuild Automation**  
 Use the `SAMBA_GO_REBUILD_URSELF()` function to automate self-rebuilds when samba.c changes.
