@@ -24,6 +24,8 @@
 #include <limits.h>
 #include <dlfcn.h>
 
+#include "helper_libs/vector.h"
+
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
 // | S_AUTO | Automatic Setting of some Modes/Variables | Disabled
@@ -37,6 +39,8 @@
 // | S_SUDO | Running as sudo?                          | NULL
 // | S_ERROR | This returns a func if its error         | -1
 // | S_REBUILD_NO_OUTPUT | Displays no out on rebuild   | -1
+// | S_CURLE | Enables using curl withing an easier interface | Disabled
+// | S_CURLE_SET | 1 IF S_CURLE ENABLED                 | 0
 
 // -- Macros --
 #define S_VERSION "1.1"
@@ -62,6 +66,10 @@
     }                                                   \
     found;                                              \
 })
+
+#define S_CURLE_SET 0
+
+
 
 // -- Compiler --
 #ifdef S_COMPILER
@@ -1329,7 +1337,6 @@ int plugin_shutdown(void *dlopen_) {
     return 1;
 }
 
-
 void print_flags() {
     printf("Flags:\n");
     for (size_t i = 0; i < num_flags; i++) {
@@ -1339,7 +1346,65 @@ void print_flags() {
 
 
 
+#ifdef S_CURLE
+    #undef S_CURLE_SET
+    #define S_CURLE_SET 1
 
+    #include <curl/curl.h>
+
+    size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
+        size_t total_size = size * nmemb;
+        char **response_ptr = (char **)userdata;
+
+        *response_ptr = realloc(*response_ptr, strlen(*response_ptr) + total_size + 1);
+        if (*response_ptr == NULL) {
+            fprintf(stderr, "ERROR: Failed to allocate memory\n");
+            return 0;
+        }
+
+        strncat(*response_ptr, ptr, total_size);
+        return total_size;
+    }
+
+
+    char *http_get(char *url) {
+        verbose_log("Using curl...\n");
+        CURL *curl;
+        CURLcode res;
+
+        char *response = calloc(1, sizeof(char));
+
+
+        if (response == NULL) {
+            fprintf(stderr, "ERROR: Failed to allocate memory\n");
+            return "";
+        }
+
+        curl_global_init(CURL_GLOBAL_DEFAULT);
+        curl = curl_easy_init();
+
+        if (curl) {
+            curl_easy_setopt(curl, CURLOPT_URL, url);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+            res = curl_easy_perform(curl);
+
+            if (res != CURLE_OK) {
+                fprintf(stderr, "Curl request failed: %s\n", curl_easy_strerror(res));
+                return "";
+            } else {
+                verbose_log("Curl request successful!\n");
+                curl_global_cleanup();
+                return response;
+            }
+            curl_easy_cleanup(curl);
+
+        } else verbose_log("ERROR: Curl Initialization failed!?");
+
+    }
+
+#endif // S_CURLE
 
 #endif
 

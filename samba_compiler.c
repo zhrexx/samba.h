@@ -298,9 +298,10 @@ void parse_build_file(const char* filename, int argc, char **argv_, bool program
 
 int main(int argc, char* argv[]) {
     if (argc == 2 && strcmp(argv[1], "--version") == 0) {
-        printf("SambaCompiler v2\n");
-        printf("| samba.h v1.1  \n");
-        printf("| githash: %s\n", get_git_hash());
+        printf("SambaCompiler v3\n");
+        printf("| samba v%s\n", S_VERSION);
+    } else if (argc == 2 && strcmp(argv[1], "--version_short") == 0) {
+        printf("v3\n");
     } else {
         clock_t start = clock();
         parse_build_file("build.samba", argc, argv, true);

@@ -2,7 +2,8 @@ echo "Installing SambaCompiler to system"
 
 if [ -f "samba" ]; then
     if [ "$1" == "--self" ]; then
-        echo "Because of --self running using SambaCompiler $(samba)"
+        echo "Because of --self running using SambaCompiler $(samba --version_short)"
+        echo ""
         samba rebuild
         exit 0
     fi

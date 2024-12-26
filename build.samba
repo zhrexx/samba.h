@@ -1,6 +1,8 @@
 rebuild:
     enable_verbose();
+    set_build_directory(".");
     add_flag("-fPIC");
     compile_s("base.c", "libbase.so");
     remove_flag("-fPIC");
+    define_library("curl");
     compile("samba.c", "samba");

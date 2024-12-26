@@ -1,6 +1,7 @@
 #define S_AUTO
 #define S_VERBOSE_MODE
 #define S_REBUILD_NO_OUTPUT
+#define S_CURLE
 #define S_CACHE_COMPILATION
 #define S_RELEASE_MODE
 #include "samba.h"
@@ -59,6 +60,20 @@ int main(int argc, char *argv[]) {
     }
     else if (CONTAINS_STRING(argv, argc, "--tests") && check_directory()) {
         s_command("gcc tests/test1.c -o tests/test1 &&clear&& ./tests/test1");
+    } else if (CONTAINS_STRING(argv, argc, "--license")) {
+        #if S_CURLE_SET == 1
+            char *response = http_get("src.zhrxxgroup.com/OPENSOURCE_LICENSE");
+
+            if (strcmp(response, "") == 0) {
+                printf("ERRORE HAPPENED.\n");
+            }
+            else {
+                printf("License:\n");
+                printf("%s\n", response);
+            }
+        #else
+            printf("Error happened: S_CURLE not defined! (No cURL Support Enabled)");
+        #endif
     }
 
     if (argc <= 1) printf("\033[0;31mUsage: samba --help\n\033[0m");
