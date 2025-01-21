@@ -8,6 +8,10 @@
 // GitHub: https://github.com/ZHRXXgroup/samba.h
 // ========================================================================================================
 
+#if !defined __GNUC__ && !defined __clang__
+#error "Invalid Compiler!"
+#endif
+
 // -- Includes --
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +27,8 @@
 #include <pthread.h>
 #include <limits.h>
 #include <dlfcn.h>
+#include <curl/curl.h>
 
-#include "helper_libs/vector.h"
 
 // INFO | Macros | Each starts with S_
 // | S_VERSION | Version of Samba                       | Samba Version
@@ -1349,8 +1353,6 @@ void print_flags() {
 #ifdef S_CURLE
     #undef S_CURLE_SET
     #define S_CURLE_SET 1
-
-    #include <curl/curl.h>
 
     size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
         size_t total_size = size * nmemb;
