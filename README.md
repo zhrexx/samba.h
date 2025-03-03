@@ -1,3 +1,4 @@
+In the next version i will rewrite it
 ## Samba Build System 🚀  
 - Version: 1.1  
 - Author(s): ZHRXXgroup  

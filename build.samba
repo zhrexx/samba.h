@@ -6,3 +6,9 @@ rebuild:
     remove_flag("-fPIC");
     define_library("curl");
     compile("samba.c", "samba");
+
+build_to_a:
+    enable_verbose();
+    add_flag("-c");
+    compile("samba_wrapper.c", "samba.o");
+    s_command("ar rcs libsamba.a build/samba.o");
